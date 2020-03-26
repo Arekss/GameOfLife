@@ -1,2 +1,4 @@
 # GameOfLife
-Tasks for Advanced programmingin c++
+Tasks for Advanced programming in C++
+
+project made with CLion
