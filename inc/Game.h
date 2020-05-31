@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <vector>
 
 #include "Cell.h"
 
@@ -15,8 +16,10 @@ class Game {
 public:
     Game();
 
-    static const int size = 10;
-    static Cell board[10][10];
+    //static const int size = 10;
+    int size;
+    //static Cell board[10][10];
+    std::vector<std::vector<Cell>> board;
 
     void init();
     void run();

@@ -1,20 +1,12 @@
 #include "Game.h"
 
 Game::Game() {
-    board[0][0].pos = Cell::UPLEFT;
-    board[9][0].pos = Cell::UPRIGHT;
-    board[9][0].pos = Cell::DOWNRIGHT;
-    board[0][9].pos = Cell::DOWNLEFT;
-    for (int i = 1; i < 9; i++) {
-        board[i][0].pos = Cell::LEFT;
-        board[0][i].pos = Cell::UP;
-        board[9][i].pos = Cell::DOWN;
-        board[i][9].pos = Cell::RIGHT;
-    }
+    //size = 10;
 	po::options_description config("Configuration");
         config.add_options()
             ("max_num_of_iterations", po::value<int>(&n_iterations)->default_value(10), 
              "max number of iterations")
+            ("size", po::value<int>(&size)->default_value(10), "width and length of board")
 	    ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
 
 	po::variables_map vm;
@@ -23,6 +15,20 @@ Game::Game() {
 	if (!ifs.is_open()) std::cout << "Config file not found. Using default values\n";
         po::store(po::parse_config_file(ifs,config), vm);
         notify(vm);
+
+
+	board.resize(size+1, std::vector<Cell>(size+1));
+
+        board[0][0].pos = Cell::UPLEFT;
+        board[size-1][0].pos = Cell::UPRIGHT;
+        board[size-1][0].pos = Cell::DOWNRIGHT;
+        board[0][size-1].pos = Cell::DOWNLEFT;
+        for (int i = 1; i < size-1; i++) {
+            board[i][0].pos = Cell::LEFT;
+            board[0][i].pos = Cell::UP;
+            board[size-1][i].pos = Cell::DOWN;
+            board[i][size-1].pos = Cell::RIGHT;
+        }
 };
 
 void Game::printBoard() {
@@ -158,8 +164,8 @@ void Game::init() {
     board[2][0].alive=true;
     board[2][1].alive=true;
     board[2][2].alive=true;
-    //board[0][1].alive=true;
-    //board[1][2].alive=true;
+    board[0][1].alive=true;
+    board[1][2].alive=true;
 };
 
-Cell Game::board[10][10];
+//Cell Game::board[10][10];
