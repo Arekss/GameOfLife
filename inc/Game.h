@@ -4,8 +4,12 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 #include "Cell.h"
+
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
 class Game {
 public:
@@ -21,6 +25,9 @@ public:
     void updatePrintedCharacter();
     void updateCell(Cell& cell,Cell& tempCell, int i, int j);
 
+    private:
+    int n_iterations;
+    int delay_in_ms;
 };
 
 

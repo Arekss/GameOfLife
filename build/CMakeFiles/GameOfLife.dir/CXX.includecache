@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../inc/Cell.h
+
+../inc/Game.h
+iostream
+-
+chrono
+-
+thread
+-
+fstream
+-
+Cell.h
+../inc/Cell.h
+boost/program_options.hpp
+-
+
+/home/arek/advCPP/GameOfLife/main.cpp
+Game.h
+/home/arek/advCPP/GameOfLife/Game.h
+
+/home/arek/advCPP/GameOfLife/src/Game.cpp
+Game.h
+/home/arek/advCPP/GameOfLife/src/Game.h
+

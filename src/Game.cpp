@@ -11,7 +11,18 @@ Game::Game() {
         board[9][i].pos = Cell::DOWN;
         board[i][9].pos = Cell::RIGHT;
     }
+	po::options_description config("Configuration");
+        config.add_options()
+            ("max_num_of_iterations", po::value<int>(&n_iterations)->default_value(10), 
+             "max number of iterations")
+	    ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
 
+	po::variables_map vm;
+	std::ifstream ifs;
+	ifs.open("../config.cfg", std::ifstream::out);
+	if (!ifs.is_open()) std::cout << "Config file not found. Using default values\n";
+        po::store(po::parse_config_file(ifs,config), vm);
+        notify(vm);
 };
 
 void Game::printBoard() {
@@ -53,13 +64,12 @@ void Game::updatePrintedCharacter()
 void Game::run() {
 
     init();
-
     int i = 0;
-    while (i++ < 100000) {
+    while (i++ < n_iterations) {
+	system("clear");
         updateBoard();
         printBoard();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        system("cls");
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay_in_ms));
     }
 }
 
