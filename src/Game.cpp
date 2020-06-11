@@ -5,9 +5,10 @@ Game::Game() {
 	po::options_description config("Configuration");
         config.add_options()
             ("max_num_of_iterations", po::value<int>(&n_iterations)->default_value(10), 
-             "max number of iterations")
+                    "max number of iterations")
             ("size", po::value<int>(&size)->default_value(10), "width and length of board")
-	    ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
+            ("construct_name", po::value<std::string>(&construct_name)->default_value("invalid"), "rle name")
+	        ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
 
 	po::variables_map vm;
 	std::ifstream ifs;
@@ -161,11 +162,86 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
 
 void Game::init() {
 
-    board[2][0].alive=true;
-    board[2][1].alive=true;
-    board[2][2].alive=true;
-    board[0][1].alive=true;
-    board[1][2].alive=true;
+    std::ifstream T("../constructs/"+construct_name+".rle");
+    if (T){
+        initFromRleFile(T);
+    }
+    else{                       // default init
+        board[2][0].alive=true;
+        board[2][1].alive=true;
+        board[2][2].alive=true;
+        board[0][1].alive=true;
+        board[1][2].alive=true;
+    }
 };
 
-//Cell Game::board[10][10];
+void Game::initFromRleFile(std::ifstream& T)
+{
+    std::stringstream buffer;
+    buffer << T.rdbuf();
+    std::string rlefile = buffer.str();
+    std::istringstream f(rlefile);
+    std::string line;
+
+    std::vector<std::vector<bool>> Construct(VEC_BUFF_SIZE, std::vector<bool>(VEC_BUFF_SIZE, false));
+
+    while (std::getline(f, line)) {
+        if (line.find('#') == std::string::npos && line.find("rule") == std::string::npos) {
+            int curRow = 0;
+            int curCol = 0;
+            int counter = 0;
+            char prev = 'b';
+            std::string s;
+            for(char& c : line) {
+                if (c=='!') break;
+                if (c=='$') {
+                    if (prev == 'b' || prev == 'o') {
+                        curRow++;
+                    }
+                    else
+                    {
+                        for (int i = 0; i< counter; i++)
+                        {
+                            curRow++;
+                        }
+                    }
+                    curCol = 0;
+                }
+                if (c=='b' || c=='o')
+                {
+                    if (prev == 'b' || prev == 'o' || prev == '$')
+                    {
+                        Construct[curRow][curCol] =  (c != 'b');
+                        curCol+=1;
+                    }
+                    else
+                    {
+                        for (int i = 0; i< counter; i++)
+                        {
+                            Construct[curRow][curCol] = (c != 'b');
+                            curCol+=1;
+                        }
+                    }
+                }
+                if (isdigit(c))
+                {
+                    s = c;
+                    counter = atoi(s.c_str());
+                }
+                prev = c;
+            }
+        }
+    }
+    mapConstructToBoard(Construct);
+};
+
+void Game::mapConstructToBoard(std::vector<std::vector<bool>>& vec)
+{
+    for (int i=0;i<size-5;i++)
+    {
+        for (int j=0;j<size-5;j++)
+        {
+            board[i+5][j+5].alive = vec[i][j];
+        }
+    }
+};

@@ -1,5 +1,6 @@
 # GameOfLife
 Tasks for Advanced programming in C++
+Made on Ubuntu 20.04
 
 Compile and run:
 1) cd build
