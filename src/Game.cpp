@@ -8,6 +8,7 @@ Game::Game() {
                     "max number of iterations")
             ("size", po::value<int>(&size)->default_value(10), "width and length of board")
             ("construct_name", po::value<std::string>(&construct_name)->default_value("invalid"), "rle name")
+            ("glued_edges", po::value<bool>(&is_periodic_boundary)->default_value(false), "glued edges")
 	        ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
 
 	po::variables_map vm;
@@ -18,12 +19,12 @@ Game::Game() {
         notify(vm);
 
 
-	board.resize(size+1, std::vector<Cell>(size+1));
+	board.resize(size, std::vector<Cell>(size));
 
         board[0][0].pos = Cell::UPLEFT;
-        board[size-1][0].pos = Cell::UPRIGHT;
-        board[size-1][0].pos = Cell::DOWNRIGHT;
-        board[0][size-1].pos = Cell::DOWNLEFT;
+        board[0][size-1].pos = Cell::UPRIGHT;
+        board[size-1][size-1].pos = Cell::DOWNRIGHT;
+        board[size-1][0].pos = Cell::DOWNLEFT;
         for (int i = 1; i < size-1; i++) {
             board[i][0].pos = Cell::LEFT;
             board[0][i].pos = Cell::UP;
@@ -86,16 +87,31 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
 
     switch (cell.pos) {
         case Cell::UPLEFT: {
-            if (board[0][1].alive) tempCell.neighbours++;
-            if (board[1][0].alive) tempCell.neighbours++;
-            if (board[1][1].alive) tempCell.neighbours++;
+            if (board[0][1].alive)               tempCell.neighbours++;
+            if (board[1][0].alive)               tempCell.neighbours++;
+            if (board[1][1].alive)               tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[size - 1][size - 1].alive) tempCell.neighbours++;
+                if (board[size - 1][1].alive)        tempCell.neighbours++;
+                if (board[1][size - 1].alive)        tempCell.neighbours++;
+                if (board[size - 1][0].alive)        tempCell.neighbours++;
+                if (board[0][size - 1].alive)        tempCell.neighbours++;
+            }
+
             break;
         }
 
         case Cell::DOWNLEFT: {
-            if (board[size - 2][0].alive) tempCell.neighbours++;
-            if (board[size - 2][1].alive) tempCell.neighbours++;
-            if (board[size - 1][1].alive) tempCell.neighbours++;
+            if (board[size - 2][0].alive)        tempCell.neighbours++;
+            if (board[size - 2][1].alive)        tempCell.neighbours++;
+            if (board[size - 1][1].alive)        tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[size - 1][size - 1].alive) tempCell.neighbours++;
+                if (board[size - 2][size - 1].alive) tempCell.neighbours++;
+                if (board[0][0].alive)               tempCell.neighbours++;
+                if (board[0][1].alive)               tempCell.neighbours++;
+                if (board[0][size -1].alive)         tempCell.neighbours++;
+            }
             break;
         }
 
@@ -103,12 +119,26 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
             if (board[size - 2][size - 1].alive) tempCell.neighbours++;
             if (board[size - 1][size - 2].alive) tempCell.neighbours++;
             if (board[size - 2][size - 2].alive) tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[0][size - 2].alive)        tempCell.neighbours++;
+                if (board[0][size - 1].alive)        tempCell.neighbours++;
+                if (board[0][0].alive)               tempCell.neighbours++;
+                if (board[size - 1][0].alive)        tempCell.neighbours++;
+                if (board[size - 2][0].alive)        tempCell.neighbours++;
+            }
             break;
         }
         case Cell::UPRIGHT: {
-            if (board[0][size - 2].alive) tempCell.neighbours++;
-            if (board[1][size - 1].alive) tempCell.neighbours++;
-            if (board[1][size - 2].alive) tempCell.neighbours++;
+            if (board[0][size - 2].alive)        tempCell.neighbours++;
+            if (board[1][size - 1].alive)        tempCell.neighbours++;
+            if (board[1][size - 2].alive)        tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[size-1][size - 2].alive)   tempCell.neighbours++;
+                if (board[size-1][size - 1].alive)   tempCell.neighbours++;
+                if (board[size-1][0].alive)          tempCell.neighbours++;
+                if (board[0][0].alive)               tempCell.neighbours++;
+                if (board[1][0].alive)               tempCell.neighbours++;
+            }
             break;
         }
         case Cell::INSIDE: {
@@ -116,18 +146,23 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
             if (board[i - 1][j - 1].alive) tempCell.neighbours++;
             if (board[i - 1][j + 1].alive) tempCell.neighbours++;
             if (board[i + 1][j - 1].alive) tempCell.neighbours++;
-            if (board[i][j + 1].alive) tempCell.neighbours++;
-            if (board[i][j - 1].alive) tempCell.neighbours++;
-            if (board[i + 1][j].alive) tempCell.neighbours++;
-            if (board[i - 1][j].alive) tempCell.neighbours++;
+            if (board[i][j + 1].alive)     tempCell.neighbours++;
+            if (board[i][j - 1].alive)     tempCell.neighbours++;
+            if (board[i + 1][j].alive)     tempCell.neighbours++;
+            if (board[i - 1][j].alive)     tempCell.neighbours++;
             break;
         }
         case Cell::UP: {
-            if (board[0][j - 1].alive) tempCell.neighbours++;
-            if (board[0][j + 1].alive) tempCell.neighbours++;
-            if (board[1][j + 1].alive) tempCell.neighbours++;
-            if (board[1][j - 1].alive) tempCell.neighbours++;
-            if (board[1][j].alive) tempCell.neighbours++;
+            if (board[0][j - 1].alive)     tempCell.neighbours++;
+            if (board[0][j + 1].alive)     tempCell.neighbours++;
+            if (board[1][j + 1].alive)     tempCell.neighbours++;
+            if (board[1][j - 1].alive)     tempCell.neighbours++;
+            if (board[1][j].alive)         tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[size-1][j-1].alive)  tempCell.neighbours++;
+                if (board[size-1][j].alive)    tempCell.neighbours++;
+                if (board[size-1][j+1].alive)  tempCell.neighbours++;
+            }
             break;
         }
         case Cell::DOWN: {
@@ -135,7 +170,12 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
             if (board[size - 1][j + 1].alive) tempCell.neighbours++;
             if (board[size - 2][j + 1].alive) tempCell.neighbours++;
             if (board[size - 2][j - 1].alive) tempCell.neighbours++;
-            if (board[size - 2][j].alive) tempCell.neighbours++;
+            if (board[size - 2][j].alive)     tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[0][j-1].alive)          tempCell.neighbours++;
+                if (board[0][j].alive)            tempCell.neighbours++;
+                if (board[0][j+1].alive)          tempCell.neighbours++;
+            }
             break;
         }
         case Cell::RIGHT: {
@@ -143,7 +183,12 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
             if (board[i + 1][size - 1].alive) tempCell.neighbours++;
             if (board[i - 1][size - 2].alive) tempCell.neighbours++;
             if (board[i + 1][size - 2].alive) tempCell.neighbours++;
-            if (board[i][size - 2].alive) tempCell.neighbours++;
+            if (board[  i  ][size - 2].alive) tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[i - 1][    0   ].alive) tempCell.neighbours++;
+                if (board[  i  ][    0   ].alive) tempCell.neighbours++;
+                if (board[i + 1][    0   ].alive) tempCell.neighbours++;
+            }
             break;
         }
         case Cell::LEFT: {
@@ -152,6 +197,11 @@ void Game::updateCell(Cell &cell, Cell &tempCell, int i, int j) {
             if (board[i - 1][1].alive) tempCell.neighbours++;
             if (board[i + 1][1].alive) tempCell.neighbours++;
             if (board[i][1].alive) tempCell.neighbours++;
+            if (is_periodic_boundary){
+                if (board[i-1][size-1].alive) tempCell.neighbours++;
+                if (board[i][size-1].alive) tempCell.neighbours++;
+                if (board[i+1][size-1].alive) tempCell.neighbours++;
+            }
             break;
         }
     }
@@ -167,11 +217,11 @@ void Game::init() {
         initFromRleFile(T);
     }
     else{                       // default init
-        board[2][0].alive=true;
-        board[2][1].alive=true;
-        board[2][2].alive=true;
-        board[0][1].alive=true;
-        board[1][2].alive=true;
+        board[4][5].alive=true;
+        board[5][5].alive=true;
+        board[6][5].alive=true;
+        board[6][6].alive=true;
+        board[5][7].alive=true;
     }
 };
 
@@ -237,11 +287,11 @@ void Game::initFromRleFile(std::ifstream& T)
 
 void Game::mapConstructToBoard(std::vector<std::vector<bool>>& vec)
 {
-    for (int i=0;i<size-5;i++)
+    for (int i=0;i<size-1;i++)
     {
-        for (int j=0;j<size-5;j++)
+        for (int j=0;j<size-1;j++)
         {
-            board[i+5][j+5].alive = vec[i][j];
+            board[i+1][j+1].alive = vec[i][j];
         }
     }
 };

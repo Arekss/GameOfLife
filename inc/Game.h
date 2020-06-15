@@ -39,6 +39,7 @@ public:
     int n_iterations;
     int delay_in_ms;
     std::string construct_name;
+    bool is_periodic_boundary;
 };
 
 
