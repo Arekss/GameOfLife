@@ -33,6 +33,8 @@ Cell.h
 ../inc/Cell.h
 boost/program_options.hpp
 -
+SFML/Graphics.hpp
+-
 
 /home/arek/advCPP/GameOfLife/main.cpp
 Game.h

@@ -17,27 +17,30 @@
 #include "Cell.h"
 
 #include <boost/program_options.hpp>
+#include <SFML/Graphics.hpp>
 namespace po = boost::program_options;
 
 class Game {
 public:
     Game();
-
-    void init();
     void run();
+
+private:
+    void init();
     void printBoard();
     void updateBoard();
     void updatePrintedCharacter();
     void updateCell(Cell& cell,Cell& tempCell, int i, int j);
     void initFromRleFile(std::ifstream& T);
     void mapConstructToBoard(std::vector<std::vector<bool>>& vec);
+    void useGraphicalDisplay();
 
-    int size;
+private:
     std::vector<std::vector<Cell>> board;
-
-    private:
+    int size;
     int n_iterations;
     int delay_in_ms;
+    std::string display_mode;
     std::string construct_name;
     bool is_periodic_boundary;
 };

@@ -1,14 +1,14 @@
 #include "Game.h"
 
 Game::Game() {
-    //size = 10;
 	po::options_description config("Configuration");
         config.add_options()
             ("max_num_of_iterations", po::value<int>(&n_iterations)->default_value(10), 
                     "max number of iterations")
-            ("size", po::value<int>(&size)->default_value(10), "width and length of board")
+            ("size", po::value<int>(&size)->default_value(15), "width and length of board")
             ("construct_name", po::value<std::string>(&construct_name)->default_value("invalid"), "rle name")
             ("glued_edges", po::value<bool>(&is_periodic_boundary)->default_value(false), "glued edges")
+            ("display", po::value<std::string>(&display_mode)->default_value("console"), "display mode")
 	        ("speed", po::value<int>(&delay_in_ms)->default_value(500),"speed of simulation");
 
 	po::variables_map vm;
@@ -17,7 +17,6 @@ Game::Game() {
 	if (!ifs.is_open()) std::cout << "Config file not found. Using default values\n";
         po::store(po::parse_config_file(ifs,config), vm);
         notify(vm);
-
 
 	board.resize(size, std::vector<Cell>(size));
 
@@ -70,14 +69,19 @@ void Game::updatePrintedCharacter()
 }
 
 void Game::run() {
-
     init();
+    if (display_mode == "SFML")
+    {
+        useGraphicalDisplay();
+    }
+    else {
     int i = 0;
     while (i++ < n_iterations) {
-	system("clear");
-        updateBoard();
-        printBoard();
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay_in_ms));
+            system("clear");
+            updateBoard();
+            printBoard();
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay_in_ms));
+        }
     }
 }
 
@@ -295,3 +299,40 @@ void Game::mapConstructToBoard(std::vector<std::vector<bool>>& vec)
         }
     }
 };
+
+void Game::useGraphicalDisplay()
+{
+    int counter = 0;
+    const int SIZE_OF_CELL = 25;
+    const sf::Vector2f CELL_VECTOR{static_cast<float>(SIZE_OF_CELL), static_cast<float>(SIZE_OF_CELL)};
+    sf::RenderWindow window(sf::VideoMode(SIZE_OF_CELL * size, SIZE_OF_CELL * size + 10), "Game of Life");
+    while (window.isOpen() && counter++ < n_iterations) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            switch (event.type) {
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+            }
+        }
+        window.clear(sf::Color::White);
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                // draw cell
+                sf::RectangleShape cell;
+                cell.setPosition(x * SIZE_OF_CELL, y * SIZE_OF_CELL);
+                cell.setSize(CELL_VECTOR);
+                cell.setOutlineThickness(1);
+                cell.setOutlineColor(sf::Color::Black);
+                if (board[y][x].alive == true)
+                    cell.setFillColor(sf::Color::Blue);
+                else
+                    cell.setFillColor(sf::Color::White);
+                window.draw(cell);
+            }
+        }
+        window.display();
+        updateBoard();
+        sf::sleep(sf::milliseconds(delay_in_ms));
+    }
+}
