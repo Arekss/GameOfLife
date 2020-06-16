@@ -10,6 +10,3 @@ Compile and run:
 
 @@@@@ Configuration @@@@@
 Game of life configuration can be set in config.cfg
-
-
-//SFML task in progress
