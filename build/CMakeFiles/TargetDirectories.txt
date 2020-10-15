@@ -1,3 +1,0 @@
-/home/arek/advCPP/GameOfLife/build/CMakeFiles/rebuild_cache.dir
-/home/arek/advCPP/GameOfLife/build/CMakeFiles/GameOfLife.dir
-/home/arek/advCPP/GameOfLife/build/CMakeFiles/edit_cache.dir
